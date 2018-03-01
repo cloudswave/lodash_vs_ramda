@@ -1,0 +1,69 @@
+<html>
+  <body>
+
+  </body>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ramda/0.17.1/ramda.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.10.1/lodash.js"></script>
+      
+<script>
+
+  var data = _.range(10000).map(function(i) {
+    return {
+      counter: i
+    }
+  });
+  function isOdd(num) {
+    return num % 2 === 1;
+  }
+  function square(num) {
+    return num * num;
+  }
+  function lessThanThreeDigits(num) {
+    return num.toString().length < 3;
+  }
+  
+  var lodash = function(data) {
+    return _.filter(_.map(_.filter(_.pluck(data, 'counter'), isOdd), square), lessThanThreeDigits);
+  };
+  
+  var ramda1 = function(data) {
+    return R.filter(lessThanThreeDigits,R.map(square,R.filter(isOdd, R.pluck('counter', data))));
+  };
+  
+  // Longer but more maintainable.
+  var ramda2 = R.pipe(
+      R.pluck('counter'),
+      R.filter(isOdd),
+      R.map(square),
+	  R.filter(lessThanThreeDigits)
+  );
+  
+  var nativeFunctional = function(data) {
+    return data.map(function(value) {
+        return value.counter;
+      }).filter(function(value) {
+        return value != null;
+      }).filter(isOdd).map(square).filter(lessThanThreeDigits);
+  };
+  
+  var nativeImperative = function(data) {
+    var result = [];
+    var length = data.length;
+    for (var i=0; i<data.length; i++) {
+      var value = data[i].counter;
+      var squared;
+      if (isOdd(value)) {
+        squared = square(value);
+        if (lessThanThreeDigits(squared)) {
+          result.push(squared);
+        }
+      }
+    }
+    return result;
+  };
+  let lodashResult = lodash(data);
+  let ramda1Result = ramda1(data);
+  document.body.innerText = lodashResult + "\n" + ramda1Result;
+  </script>
+
+</html>
